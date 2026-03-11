@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/premium/premium_state.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../ai_vibe/presentation/ai_vibe_page.dart';
 import '../../paywall/presentation/paywall_page.dart';
 import '../domain/meditation_session.dart';
 import 'widgets/session_card.dart';
@@ -303,16 +304,33 @@ class _MeditationsPageState extends State<MeditationsPage> {
             icon: Icons.self_improvement_rounded,
             label: 'Медитации',
             isActive: true,
+            onTap: () {},
           ),
           _BottomItem(
             icon: Icons.auto_awesome_rounded,
             label: 'AI Vibe',
             isActive: false,
+            onTap: () {
+              if (!hasPremium) {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const PaywallPage(),
+                  ),
+                );
+              } else {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const AiVibePage(),
+                  ),
+                );
+              }
+            },
           ),
           _BottomItem(
             icon: Icons.person_rounded,
             label: 'Профиль',
             isActive: false,
+            onTap: () {},
           ),
         ],
       ),
@@ -338,48 +356,54 @@ class _BottomItem extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.isActive,
+    this.onTap,
   });
 
   final IconData icon;
   final String label;
   final bool isActive;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: isActive
-                ? const LinearGradient(
-                    colors: [
-                      AppColors.accentPurple,
-                      AppColors.accentBlue,
-                    ],
-                  )
-                : null,
-            color: isActive ? null : Colors.transparent,
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: isActive
+                  ? const LinearGradient(
+                      colors: [
+                        AppColors.accentPurple,
+                        AppColors.accentBlue,
+                      ],
+                    )
+                  : null,
+              color: isActive ? null : Colors.transparent,
+            ),
+            child: Icon(
+              icon,
+              color: isActive ? Colors.white : AppColors.textSecondary,
+              size: isActive ? 24 : 22,
+            ),
           ),
-          child: Icon(
-            icon,
-            color: isActive ? Colors.white : AppColors.textSecondary,
-            size: isActive ? 24 : 22,
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: isActive ? Colors.white : AppColors.textSecondary,
+              fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: isActive ? Colors.white : AppColors.textSecondary,
-            fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
