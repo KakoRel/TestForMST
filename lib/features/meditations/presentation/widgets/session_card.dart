@@ -9,14 +9,18 @@ class MeditationSessionCard extends StatelessWidget {
     super.key,
     required this.session,
     required this.onTap,
+    required this.isPremium,
   });
 
   final MeditationSession session;
   final VoidCallback onTap;
+  final bool isPremium;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    final bool isEffectivelyLocked = session.isLocked && !isPremium;
 
     Widget cardContent = Container(
       decoration: BoxDecoration(
@@ -136,9 +140,9 @@ class MeditationSessionCard extends StatelessWidget {
                       ),
                       child: Center(
                         child: Icon(
-                          session.isLocked ? Icons.lock_rounded : Icons.play_arrow_rounded,
+                          isEffectivelyLocked ? Icons.lock_rounded : Icons.play_arrow_rounded,
                           color: Colors.white,
-                          size: session.isLocked ? 22 : 30,
+                          size: isEffectivelyLocked ? 22 : 30,
                         ),
                       ),
                     ),
@@ -190,7 +194,7 @@ class MeditationSessionCard extends StatelessWidget {
       ),
     );
 
-    if (session.isLocked) {
+    if (isEffectivelyLocked) {
       cardContent = ColorFiltered(
         colorFilter: const ColorFilter.mode(
           Colors.black54,

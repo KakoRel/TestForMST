@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'core/premium/premium_state.dart';
 import 'core/theme/app_theme.dart';
 import 'features/meditations/presentation/meditations_page.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await PremiumState.instance.init();
   runApp(const MyApp());
 }
 

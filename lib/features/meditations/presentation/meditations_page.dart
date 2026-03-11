@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/premium/premium_state.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../paywall/presentation/paywall_page.dart';
 import '../domain/meditation_session.dart';
 import 'widgets/session_card.dart';
 
@@ -13,6 +15,7 @@ class MeditationsPage extends StatefulWidget {
 
 class _MeditationsPageState extends State<MeditationsPage> {
   bool hasPremium = false;
+  late final PremiumState _premiumState = PremiumState.instance;
   String selectedTag = 'Все';
 
   late final List<MeditationSession> _allSessions = [
@@ -65,6 +68,25 @@ class _MeditationsPageState extends State<MeditationsPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    hasPremium = _premiumState.isPremium;
+    _premiumState.addListener(_onPremiumChanged);
+  }
+
+  void _onPremiumChanged() {
+    setState(() {
+      hasPremium = _premiumState.isPremium;
+    });
+  }
+
+  @override
+  void dispose() {
+    _premiumState.removeListener(_onPremiumChanged);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
@@ -103,6 +125,7 @@ class _MeditationsPageState extends State<MeditationsPage> {
                       final session = _visibleSessions[index];
                       return MeditationSessionCard(
                         session: session,
+                        isPremium: hasPremium,
                         onTap: () => _onSessionTap(session),
                       );
                     },
@@ -298,12 +321,9 @@ class _MeditationsPageState extends State<MeditationsPage> {
 
   void _onSessionTap(MeditationSession session) {
     if (session.isLocked && !hasPremium) {
-      // TODO: здесь будет переход на Paywall
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Эта сессия доступна в Premium. Откроем экран подписки позже.',
-          ),
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => const PaywallPage(),
         ),
       );
       return;
